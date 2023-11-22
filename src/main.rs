@@ -48,6 +48,9 @@ const OUTY_H_G: u8 = 0b0010_0101;
 const OUTZ_L_G: u8 = 0b0010_0110;
 const OUTZ_H_G: u8 = 0b0010_0111;
 
+// ACCELEROMETER CONFIG REG
+const CTRL1_XL: u8 = 0x10;
+
 
 // ACCELEROMETER RATE OUT REGISTERS
 
@@ -86,19 +89,30 @@ fn main() -> ! {
 
     let mut buffer: [u8; 2] = [0; 2];
 
+
+    match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
+        Ok(_) => hprintln!("The chip's id is: {:#b}", buffer[0]).unwrap(),
+        Err(_) => hprintln!("Failed to read").unwrap(),
+    }
+
+    /* 
+    Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
+    • Configure the clock control registers
+    • Configure the rise time register
+    • Program the I2C_CR1 register to enable the peripheral
+    • Set the START bit in the I2C_CR1 register to generate a Start condition
+    */
+
+    // Configures Accelerometer
+    // ODR_XL[7:4] = 0100; sets accelerometer to work at 104 Hz
+    // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
+    // LPF2_XL_EN = output from first stage digital filtering
+    // 0100 11 0 0
+    i2c.write(CTRL1_XL, &[0x4C]).unwrap(); 
+
+    //let mut accel_buffer = [0u8; 1]; 
+
     loop {
-        hprintln!("test!");
-        // i2c.write(SLAVE_ADDRESS, &[WHO_AM_I]).unwrap();
-        // i2c.read(SLAVE_ADDRESS, &mut buffer).unwrap();
-        //i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer).unwrap();
-
-        match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
-            Ok(_) => hprintln!("The chip's id is: {:#b}", buffer[0]).unwrap(),
-            Err(_) => hprint!("Failed to read").unwrap(),
-        }
-
-        //hprintln!("The chip's id is: {:#b}", buffer[0]).unwrap();
-        
 
 
     }
