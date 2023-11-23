@@ -143,6 +143,34 @@ fn main() -> ! {
         // rprint!("X: {}", accel_data[0]);
         // rprint!(", Y: {}", accel_data[1]);
         // rprintln!(", Z: {}", accel_data[2]);
+
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer);
+        word = (buffer[0]  as i16) << 8;
+    
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer);
+        word |= buffer[0] as i16;
+
+        accel_data[0] = (word as f32) * 4.0/ 32768.0;
+
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_G], &mut buffer);
+        word = (buffer[0]  as i16) << 8;
+    
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_G], &mut buffer);
+        word |= buffer[0] as i16;
+
+        accel_data[1] = (word as f32) * 4.0/ 32768.0;
+
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_G], &mut buffer);
+        word = (buffer[0]  as i16) << 8;
+    
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_G], &mut buffer);
+        word |= buffer[0] as i16;
+
+        accel_data[2] = (word as f32) * 4.0/ 32768.0;
+
+        // rprint!("X: {}", accel_data[0]);
+        // rprint!(", Y: {}", accel_data[1]);
+        // rprintln!(", Z: {}", accel_data[2]);
         
 
     }
