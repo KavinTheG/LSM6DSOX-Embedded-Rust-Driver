@@ -37,6 +37,9 @@ const STATUS_REG: u8 = 0b0001_1110;
 // That are concantanted for a 16bit output value
 // Ex: OUTX_H_G + OUTX_L_G
 
+// Gyro Configuration Register
+const CTRL2_G: u8 = 0x11;
+
 // Angular rate pitch axis (X) output
 const OUTX_L_G: u8 = 0x22;
 const OUTX_H_G: u8 = 0x23;
@@ -84,7 +87,7 @@ fn main() -> ! {
  
     let mut i2c = dp.I2C1.i2c(
         (scl, sda),
-        100.kHz(),
+        400.kHz(),
         &clocks,
     );
 
@@ -105,6 +108,9 @@ fn main() -> ! {
     • Set the START bit in the I2C_CR1 register to generate a Start condition
     */
 
+    // Configures gyroscope
+    i2c.write(SLAVE_ADDRESS, &[CTRL2_G, 0x4C]).unwrap(); 
+
     // Configures Accelerometer
     // ODR_XL[7:4] = 0100; sets accelerometer to work at 104 Hz
     // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
@@ -113,29 +119,30 @@ fn main() -> ! {
     i2c.write(SLAVE_ADDRESS, &[CTRL1_XL, 0x4A]).unwrap(); 
 
     let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
+    let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
 
     loop {
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
         accel_data[0] = (word as f32) * 4.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
         accel_data[1] = (word as f32) * 4.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
         accel_data[2] = (word as f32) * 4.0/ 32768.0;
@@ -144,33 +151,33 @@ fn main() -> ! {
         // rprint!(", Y: {}", accel_data[1]);
         // rprintln!(", Z: {}", accel_data[2]);
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
-        accel_data[0] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[0] = (word as f32) * 2000.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_G], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_G], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
-        accel_data[1] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[1] = (word as f32) * 2000.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_G], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_G], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_G], &mut buffer).unwrap();
         word |= buffer[0] as i16;
 
-        accel_data[2] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[2] = (word as f32) * 2000.0/ 32768.0;
 
-        // rprint!("X: {}", accel_data[0]);
-        // rprint!(", Y: {}", accel_data[1]);
-        // rprintln!(", Z: {}", accel_data[2]);
+        // rprint!("X: {}", gyro_data[0]);
+        // rprint!(", Y: {}", gyro_data[1]);
+        // rprintln!(", Z: {}", gyro_data[2]);
         
 
     }
