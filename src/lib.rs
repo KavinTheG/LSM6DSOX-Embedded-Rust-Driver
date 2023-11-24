@@ -89,8 +89,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
         // LPF2_XL_EN[1] = 1; output from first stage digital filtering
         // 0100 10 1 0
-        let configuration: u8 = 0x4A;
-        i2c.write(SLAVE_ADDRESS, &[CTRL1_XL, configuration]);
+        let configuration: u8 = 0x6A;
         match i2c.write(SLAVE_ADDRESS, &[CTRL1_XL, configuration]) {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
@@ -99,11 +98,10 @@ impl<I2C, E> Lsm6dsox<I2C>
 
     // Configures Gyroscope
     pub fn configure_gyro(&self, i2c: &mut I2C) -> Result<(), E> {
-        // ODR_G[3:0] = 0100; sets gyroscope to work at 104 Hz
+        // ODR_G[3:0] = 0110; sets gyroscope to work at 416 Hz
         // FS[1:0] = 11; sets full-scale selcetion to 2000dps
         // FS_125 = 0;
-        let configuration: u8 = 0x4A;
-        i2c.write(SLAVE_ADDRESS, &[CTRL2_G, configuration]);
+        let configuration: u8 = 0x6C;
         match i2c.write(SLAVE_ADDRESS, &[CTRL2_G, configuration]) {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
@@ -151,30 +149,35 @@ impl<I2C, E> Lsm6dsox<I2C>
         let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
         let mut buffer: [u8; 2] = [0; 2];
         let mut word: i16;
+        /*
+        X Gyro Calib: 1.7638855
+        Y Gyro Calib: 0.35549927
+        Z Gyro Calib: 2.0090027
+        */
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer);
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer);
         word |= buffer[0] as i16;
 
-        gyro_data[0] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[0] = (word as f32) * 2000.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_G], &mut buffer);
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_G], &mut buffer);
         word |= buffer[0] as i16;
 
-        gyro_data[1] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[1] = (word as f32) * 2000.0/ 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_G], &mut buffer);
         word = (buffer[0]  as i16) << 8;
     
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer);
+        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_G], &mut buffer);
         word |= buffer[0] as i16;
 
-        gyro_data[2] = (word as f32) * 4.0/ 32768.0;
+        gyro_data[2] = (word as f32) * 2000.0/ 32768.0;
 
         Ok(gyro_data)
     }

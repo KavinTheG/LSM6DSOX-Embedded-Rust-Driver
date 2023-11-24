@@ -9,33 +9,36 @@ use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch
 // use panic_itm as _; // logs messages over ITM; requires ITM support
 // use panic_semihosting as _; // logs messages to the host stderr; requires a debugger
 
-use cortex_m::{asm, peripheral};
+use cortex_m::{asm, peripheral::{self, dwt, dcb, DWT}};
 use cortex_m_rt::entry;
-use core::cell::{Cell, RefCell};
+
+use core::{cell::{Cell, RefCell}, convert::TryInto};
 use stm32f4xx_hal::{
-    i2c::{self, I2c1},
+    i2c::{self, I2c1, Mode},
     pac::{self, I2C1},
-    prelude::*, gpio::alt::i2c1,
+    prelude::*, gpio::alt::i2c1, dwt::{MonoTimer},
 };
 use rtt_target::{rprintln, rprint, rtt_init_print};
 
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
+    
 
     let dp = pac::Peripherals::take().unwrap();
+    let mut cp = cortex_m::Peripherals::take().unwrap();
 
     let rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.hclk(8.MHz()).freeze();
 
     let gpiob = dp.GPIOB.split();
 
-    let scl = gpiob.pb6.into_push_pull_output();
-    let sda = gpiob.pb7;
+    let scl = gpiob.pb6.into_open_drain_output();
+    let sda = gpiob.pb7.into_open_drain_output();
  
     let mut i2c = dp.I2C1.i2c(
         (scl, sda),
-        100.kHz(),
+        Mode::Standard { frequency: 200.kHz() },
         &clocks,
     );
 
@@ -50,13 +53,32 @@ fn main() -> ! {
     let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
     let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
 
+    let mono_timer = MonoTimer::new(cp.DWT, cp.DCB, &clocks);
+    let start_time = mono_timer.now();
+    let mut prev_time:u32 = 0;
+
+    let mut x: f32 = 0.0;
+    let mut y: f32 = 0.0;
+    let mut z: f32 = 0.0;
+
     loop {
+        let time = start_time.elapsed();
+        let delta_time = time - prev_time;
+        let delta_sec = delta_time as f32/ clocks.sysclk().raw() as f32 * 2.0;
 
-        accel_data = imu.read_accel(&mut i2c).unwrap();
+        //accel_data = imu.read_accel(&mut i2c).unwrap();
         gyro_data = imu.read_gyro(&mut i2c).unwrap();
+        //rprintln!("Time: {:?}", delta_sec);
+        //rprintln!("Accelerometer: {:?}", accel_data);
+        //rprintln!("Angular: {:?}", gyro_data);
 
-        rprintln!("Acceleration: {:?}", accel_data);
-        rprintln!("Angular: {:?}", gyro_data);
+        x += delta_sec * gyro_data[0];
+        y += delta_sec * gyro_data[1];
+        z += delta_sec * gyro_data[2];
+
+        rprintln!("x: {:?}, y: {:?}, z: {:?} ", x, y, z);
+
+        prev_time = time;
 
     }
 
