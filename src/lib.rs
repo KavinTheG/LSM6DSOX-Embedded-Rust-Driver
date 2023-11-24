@@ -6,7 +6,6 @@ use hal::blocking::i2c;
 
 use core::marker::PhantomData;
 
-
 // Slave address 
 const SLAVE_ADDRESS: u8 = 0x6A; // LSB is 1 if SDO/SA0 is connect to usplly voltage, 0 otherwise
 
