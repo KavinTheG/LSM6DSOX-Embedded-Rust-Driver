@@ -12,13 +12,14 @@ use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch
 use cortex_m::{asm, peripheral::{self, dwt, dcb, DWT}};
 use cortex_m_rt::entry;
 
-use core::{cell::{Cell, RefCell}, convert::TryInto};
+use core::{cell::{Cell, RefCell}, convert::TryInto, f32::consts::PI};
 use stm32f4xx_hal::{
     i2c::{self, I2c1, Mode},
     pac::{self, I2C1},
     prelude::*, gpio::alt::i2c1, dwt::{MonoTimer},
 };
 use rtt_target::{rprintln, rprint, rtt_init_print};
+use libm::{atanf, sqrtf};
 
 #[entry]
 fn main() -> ! {
@@ -26,7 +27,7 @@ fn main() -> ! {
     
 
     let dp = pac::Peripherals::take().unwrap();
-    let mut cp = cortex_m::Peripherals::take().unwrap();
+    let cp = cortex_m::Peripherals::take().unwrap();
 
     let rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.hclk(8.MHz()).freeze();
@@ -57,26 +58,34 @@ fn main() -> ! {
     let start_time = mono_timer.now();
     let mut prev_time:u32 = 0;
 
-    let mut x: f32 = 0.0;
-    let mut y: f32 = 0.0;
-    let mut z: f32 = 0.0;
+    let mut x_gyro: f32 = 0.0;
+    let mut y_gyro: f32 = 0.0;
+    let mut z_gyro: f32 = 0.0;
+
+    let mut x_accel: f32 = 0.0;
+    let mut y_accel: f32 = 0.0;
 
     loop {
         let time = start_time.elapsed();
         let delta_time = time - prev_time;
         let delta_sec = delta_time as f32/ clocks.sysclk().raw() as f32 * 2.0;
 
-        //accel_data = imu.read_accel(&mut i2c).unwrap();
+        accel_data = imu.read_accel(&mut i2c).unwrap();
         gyro_data = imu.read_gyro(&mut i2c).unwrap();
         //rprintln!("Time: {:?}", delta_sec);
         //rprintln!("Accelerometer: {:?}", accel_data);
         //rprintln!("Angular: {:?}", gyro_data);
 
-        x += delta_sec * gyro_data[0];
-        y += delta_sec * gyro_data[1];
-        z += delta_sec * gyro_data[2];
+        x_gyro += delta_sec * gyro_data[0];
+        y_gyro += delta_sec * gyro_data[1];
+        z_gyro += delta_sec * gyro_data[2];
 
-        rprintln!("x: {:?}, y: {:?}, z: {:?} ", x, y, z);
+        y_accel = atanf(accel_data[0] / sqrtf(accel_data[1] * accel_data[1] + accel_data[2] * accel_data[2]) ) * 180.0 / PI;
+        x_accel = atanf(accel_data[1] / sqrtf(accel_data[0] * accel_data[0] + accel_data[2] * accel_data[2]) ) * 180.0 / PI;
+
+
+        rprintln!("Gyroscope angles; x: {:?}, y: {:?}, z: {:?} ", x_gyro, y_gyro, z_gyro);
+        rprintln!("Accelerom angles: x: {:?}, y: {:?} ", x_accel, y_accel);
 
         prev_time = time;
 
