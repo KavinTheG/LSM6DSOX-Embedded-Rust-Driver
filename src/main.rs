@@ -21,55 +21,6 @@ use stm32f4xx_hal::{
 };
 use rtt_target::{rprintln, rprint, rtt_init_print};
 
-// Slave address 
-const SLAVE_ADDRESS: u8 = 0x6A; // LSB is 1 if SDO/SA0 is connect to usplly voltage, 0 otherwise
-
-// WHO AM I Register
-const WHO_AM_I: u8 = 0x0F;
-
-// 0th bit: Temp Data available (1 if available)
-// 1st bit: Gyro data availability
-// 2nd bit: Accel data available
-const STATUS_REG: u8 = 0b0001_1110;
-
-// ANGULAR RATE OUT REGISTERS
-// The following are addresses for 8 bit registers
-// That are concantanted for a 16bit output value
-// Ex: OUTX_H_G + OUTX_L_G
-
-// Gyro Configuration Register
-const CTRL2_G: u8 = 0x11;
-
-// Angular rate pitch axis (X) output
-const OUTX_L_G: u8 = 0x22;
-const OUTX_H_G: u8 = 0x23;
-
-// Angular rate roll axis (Y) output
-const OUTY_L_G: u8 = 0x24;
-const OUTY_H_G: u8 = 0x25;
-
-// Angular rate yaw axis (Z) output
-const OUTZ_L_G: u8 = 0x26;
-const OUTZ_H_G: u8 = 0x27;
-
-// ACCELEROMETER CONFIG REG
-const CTRL1_XL: u8 = 0x10;
-
-
-// ACCELEROMETER RATE OUT REGISTERS
-
-// Accel rate X axis (X) output
-const OUTX_L_A: u8 = 0x28;
-const OUTX_H_A: u8 = 0x29;
-
-// Accel rate Y axis (Y) output
-const OUTY_L_A: u8 = 0x2A;
-const OUTY_H_A: u8 = 0x2B;
-
-// Accel rate Z axis (Z) output
-const OUTZ_L_A: u8 = 0x2C;
-const OUTZ_H_A: u8 = 0x2D;
-
 
 #[entry]
 fn main() -> ! {
@@ -94,11 +45,11 @@ fn main() -> ! {
     let mut buffer: [u8; 2] = [0; 2];
     let mut word: i16;
 
-
+    /* 
     match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
         Ok(_) => rprintln!("The chip's id is: {:#b}", buffer[0]),
         Err(_) => rprintln!("Failed to read"),
-    }
+    }*/
 
     /* 
     Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
@@ -107,7 +58,7 @@ fn main() -> ! {
     • Program the I2C_CR1 register to enable the peripheral
     • Set the START bit in the I2C_CR1 register to generate a Start condition
     */
-
+    /* 
     // Configures gyroscope
     i2c.write(SLAVE_ADDRESS, &[CTRL2_G, 0x4C]).unwrap(); 
 
@@ -117,11 +68,14 @@ fn main() -> ! {
     // LPF2_XL_EN[1] = 1; output from first stage digital filtering
     // 0100 10 1 0
     i2c.write(SLAVE_ADDRESS, &[CTRL1_XL, 0x4A]).unwrap(); 
-
+    */
     let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
     let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
 
     loop {
+
+
+        /*
     
         i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).unwrap();
         word = (buffer[0]  as i16) << 8;
@@ -178,7 +132,7 @@ fn main() -> ! {
         // rprint!("X: {}", gyro_data[0]);
         // rprint!(", Y: {}", gyro_data[1]);
         // rprintln!(", Z: {}", gyro_data[2]);
-        
+        */
 
     }
 
