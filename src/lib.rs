@@ -60,24 +60,31 @@ const OUTZ_H_A: u8 = 0x2D;
 // lsm6dsox driver
 pub struct Lsm6dsox<I2C> {
     i2c: PhantomData<I2C>,
-    address: u8,
 }
 
 impl<I2C, E> Lsm6dsox<I2C> 
     where 
         I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
-    pub fn new(_i2c: &I2C, address: u8) -> Result<Self, E> {
+    pub fn new(_i2c: &I2C) -> Result<Self, E> {
         let lsm6dsox = Lsm6dsox {
             i2c: PhantomData,
-            address,
         };
 
         Ok(lsm6dsox)
     }
 
+    pub fn read_id(&self, i2c: &mut I2C) -> Result<u8, E> {
+
+        let mut buffer = [0u8, 1];
+        match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
+            Ok(_) => Ok(buffer[0]),
+            Err(e) => Err(e),
+        }
+    }
+
     // Configures Accelerometer
-    pub fn configure_accel(&self, i2c: &mut I2C) -> Result<() , E>{
+    pub fn configure_accel(&self, i2c: &mut I2C) -> Result<(), E>{
         // ODR_XL[7:4] = 0100; sets accelerometer to work at 104 Hz
         // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
         // LPF2_XL_EN[1] = 1; output from first stage digital filtering

@@ -2,7 +2,7 @@
 #![no_main]
 #![allow(unused_imports)]
 
-
+pub use lsm6dsox_driver::Lsm6dsox;
 //use cortex_m_semihosting::{hprint, hprintln};
 // pick a panicking behavior
 use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
@@ -15,7 +15,7 @@ use cortex_m_rt::entry;
 use generic_array::{ArrayLength, GenericArray};
 use core::cell::{Cell, RefCell};
 use stm32f4xx_hal::{
-    i2c::{self},
+    i2c::{self, I2c1},
     pac::{self, I2C1},
     prelude::*, gpio::alt::i2c1,
 };
@@ -41,9 +41,9 @@ fn main() -> ! {
         400.kHz(),
         &clocks,
     );
-
-    let mut buffer: [u8; 2] = [0; 2];
-    let mut word: i16;
+    let mut imu = Lsm6dsox::new(&mut i2c).unwrap();
+    
+    imu.configure_accel(&mut i2c).unwrap();
 
     /* 
     match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
@@ -74,7 +74,9 @@ fn main() -> ! {
 
     loop {
 
+        accel_data = imu.read_accel(&mut i2c).unwrap();
 
+        rprintln!("Acceleration: {:?}", accel_data);
         /*
     
         i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).unwrap();
