@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![allow(unused_imports)]
 
 pub use lsm6dsox_driver::Lsm6dsox;
 //use cortex_m_semihosting::{hprint, hprintln};
@@ -12,7 +11,6 @@ use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch
 
 use cortex_m::{asm, peripheral};
 use cortex_m_rt::entry;
-use generic_array::{ArrayLength, GenericArray};
 use core::cell::{Cell, RefCell};
 use stm32f4xx_hal::{
     i2c::{self, I2c1},
@@ -20,7 +18,6 @@ use stm32f4xx_hal::{
     prelude::*, gpio::alt::i2c1,
 };
 use rtt_target::{rprintln, rprint, rtt_init_print};
-
 
 #[entry]
 fn main() -> ! {
@@ -38,18 +35,18 @@ fn main() -> ! {
  
     let mut i2c = dp.I2C1.i2c(
         (scl, sda),
-        400.kHz(),
+        100.kHz(),
         &clocks,
     );
+
     let mut imu = Lsm6dsox::new(&mut i2c).unwrap();
     
-    imu.configure_accel(&mut i2c).unwrap();
+    let id = imu.read_id(&mut i2c).unwrap();
+    rprintln!("id is {:#b}: ", id);
 
-    /* 
-    match i2c.write_read(SLAVE_ADDRESS, &[WHO_AM_I], &mut buffer) {
-        Ok(_) => rprintln!("The chip's id is: {:#b}", buffer[0]),
-        Err(_) => rprintln!("Failed to read"),
-    }*/
+    imu.configure_accel(&mut i2c).unwrap();
+    imu.configure_gyro(&mut i2c).unwrap();
+    
 
     /* 
     Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
@@ -75,8 +72,11 @@ fn main() -> ! {
     loop {
 
         accel_data = imu.read_accel(&mut i2c).unwrap();
+        gyro_data = imu.read_gyro(&mut i2c).unwrap();
 
         rprintln!("Acceleration: {:?}", accel_data);
+        rprintln!("Angular: {:?}", gyro_data);
+
         /*
     
         i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).unwrap();
