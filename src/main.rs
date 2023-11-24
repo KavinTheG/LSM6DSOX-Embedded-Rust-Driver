@@ -39,7 +39,7 @@ fn main() -> ! {
         &clocks,
     );
 
-    let mut imu = Lsm6dsox::new(&mut i2c).unwrap();
+    let imu = Lsm6dsox::new(&mut i2c).unwrap();
     
     let id = imu.read_id(&mut i2c).unwrap();
     rprintln!("id is {:#b}: ", id);
@@ -47,25 +47,6 @@ fn main() -> ! {
     imu.configure_accel(&mut i2c).unwrap();
     imu.configure_gyro(&mut i2c).unwrap();
     
-
-    /* 
-    Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
-    • Configure the clock control registers
-    • Configure the rise time register
-    • Program the I2C_CR1 register to enable the peripheral
-    • Set the START bit in the I2C_CR1 register to generate a Start condition
-    */
-    /* 
-    // Configures gyroscope
-    i2c.write(SLAVE_ADDRESS, &[CTRL2_G, 0x4C]).unwrap(); 
-
-    // Configures Accelerometer
-    // ODR_XL[7:4] = 0100; sets accelerometer to work at 104 Hz
-    // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
-    // LPF2_XL_EN[1] = 1; output from first stage digital filtering
-    // 0100 10 1 0
-    i2c.write(SLAVE_ADDRESS, &[CTRL1_XL, 0x4A]).unwrap(); 
-    */
     let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
     let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
 
@@ -77,69 +58,7 @@ fn main() -> ! {
         rprintln!("Acceleration: {:?}", accel_data);
         rprintln!("Angular: {:?}", gyro_data);
 
-        /*
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        accel_data[0] = (word as f32) * 4.0/ 32768.0;
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        accel_data[1] = (word as f32) * 4.0/ 32768.0;
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        accel_data[2] = (word as f32) * 4.0/ 32768.0;
-
-        // rprint!("X: {}", accel_data[0]);
-        // rprint!(", Y: {}", accel_data[1]);
-        // rprintln!(", Z: {}", accel_data[2]);
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        gyro_data[0] = (word as f32) * 2000.0/ 32768.0;
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_G], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_G], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        gyro_data[1] = (word as f32) * 2000.0/ 32768.0;
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_G], &mut buffer).unwrap();
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_G], &mut buffer).unwrap();
-        word |= buffer[0] as i16;
-
-        gyro_data[2] = (word as f32) * 2000.0/ 32768.0;
-
-        // rprint!("X: {}", gyro_data[0]);
-        // rprint!(", Y: {}", gyro_data[1]);
-        // rprintln!(", Z: {}", gyro_data[2]);
-        */
-
     }
-
- 
-
 
 }
 
