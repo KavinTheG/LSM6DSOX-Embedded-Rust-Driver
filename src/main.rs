@@ -9,23 +9,20 @@ use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch
 // use panic_itm as _; // logs messages over ITM; requires ITM support
 // use panic_semihosting as _; // logs messages to the host stderr; requires a debugger
 
-use cortex_m::{asm, peripheral::{self, dwt, dcb, DWT}};
 use cortex_m_rt::entry;
 
-use core::{cell::{Cell, RefCell}, convert::TryInto, f32::consts::PI};
+use core::f32::consts::PI;
 use stm32f4xx_hal::{
-    i2c::{self, I2c1, Mode},
-    pac::{self, I2C1},
-    prelude::*, gpio::alt::i2c1, dwt::{MonoTimer},
+    pac::{self},
+    prelude::*, dwt::MonoTimer, i2c::Mode,
 };
-use rtt_target::{rprintln, rprint, rtt_init_print};
+use rtt_target::{rprintln, rtt_init_print};
 use libm::{atanf, sqrtf};
 
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
     
-
     let dp = pac::Peripherals::take().unwrap();
     let cp = cortex_m::Peripherals::take().unwrap();
 
