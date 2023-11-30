@@ -2,6 +2,9 @@
 #![no_main]
 
 pub use lsm6dsox_driver::Lsm6dsox;
+
+mod kalman;
+use kalman::KalmanFilter;
 //use cortex_m_semihosting::{hprint, hprintln};
 // pick a panicking behavior
 use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
@@ -62,6 +65,13 @@ fn main() -> ! {
     let mut x_accel: f32 = 0.0;
     let mut y_accel: f32 = 0.0;
 
+    let mut x_kal: f32 = 0.0;
+    let mut y_kal = 0.0;
+
+
+    let mut x_kalman = KalmanFilter::new();
+    let mut y_kalman = KalmanFilter::new();
+
     loop {
         let time = start_time.elapsed();
         let delta_time = time - prev_time;
@@ -77,13 +87,18 @@ fn main() -> ! {
         y_gyro += delta_sec * gyro_data[1];
         z_gyro += delta_sec * gyro_data[2];
 
+
+        
         y_accel = atanf(accel_data[0] / sqrtf(accel_data[1] * accel_data[1] + accel_data[2] * accel_data[2]) ) * 180.0 / PI;
         x_accel = atanf(accel_data[1] / sqrtf(accel_data[0] * accel_data[0] + accel_data[2] * accel_data[2]) ) * 180.0 / PI;
-
+        
+        x_kal = x_kalman.get_angle(gyro_data[0], x_accel, delta_sec);
+        y_kal = y_kalman.get_angle(gyro_data[1], y_accel, delta_sec);
 
         rprintln!("Gyroscope angles; x: {:?}, y: {:?}, z: {:?} ", x_gyro, y_gyro, z_gyro);
         rprintln!("Accelerom angles: x: {:?}, y: {:?} ", x_accel, y_accel);
-
+        rprintln!("Kalman Filter     x: {:?}, y: {:?}", x_kal, y_kal);
+        //rprintln!("X_prior           x: {:?}, y: {:?}", x_kalman.x_prior, y_kalman.x_prior);
         prev_time = time;
 
     }
