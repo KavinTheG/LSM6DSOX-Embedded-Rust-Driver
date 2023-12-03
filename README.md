@@ -9,6 +9,16 @@ This is a rust driver to retrieve accelerometer + gyroscope data from the LSM6DS
 
 Tested on the STM32F411E Discovery Board.
 
+### Installation 
+
+Ensure the line shown below is added to the Cargo.toml file
+
+```
+[dependencies]
+    ...
+lsm6dsox_driver = {git = "https://github.com/KavinTheG/LSM6DSOX-Embedded-Rust-Driver.git"} \
+```
+
 ## Status
 - [x] I2C Support 
     - [x] Basic sensor readings
