@@ -87,7 +87,7 @@ fn main() -> ! {
 
 ### Documentation
 
-Currently, a hosting solution is not yet available. However, docuemntatioin can be generated with the following command.
+Currently, a hosting solution is not yet available. However, documentation can be generated with the following command.
 ```
 cargo doc
 ```
