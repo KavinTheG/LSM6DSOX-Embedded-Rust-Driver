@@ -15,6 +15,7 @@ Tested on the STM32F411E Discovery Board.
 - [x] I2C Support 
     - [x] Basic sensor readings
     - [ ] Calibration
+    - [ ] Configuration selection
 - [ ] SPI Support
 - [ ] Documentation
 

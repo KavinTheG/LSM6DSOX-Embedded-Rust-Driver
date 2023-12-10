@@ -1,4 +1,3 @@
-#![allow(missing_docs)]
 #![no_std]
 
 extern crate embedded_hal as hal;
@@ -56,7 +55,7 @@ const OUTZ_L_A: u8 = 0x2C;
 const OUTZ_H_A: u8 = 0x2D;
 
 
-// lsm6dsox driver
+/// LSM6DSOX Driver
 pub struct Lsm6dsox<I2C> {
     i2c: PhantomData<I2C>,
 }
@@ -65,6 +64,16 @@ impl<I2C, E> Lsm6dsox<I2C>
     where 
         I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
+    /// Creates a new driver from a I2C Peripheral
+    /// # Example
+    /// ```
+    ///     let mut i2c = dp.I2C1.i2c(
+    ///         (scl, sda),
+    ///         Mode::Standard { frequency: 200.kHz() },
+    ///         &clocks,
+    ///     );
+    ///     let imu = Lsm6dsox::new(&mut i2c).unwrap();
+    /// ```
     pub fn new(_i2c: &I2C) -> Result<Self, E> {
         let lsm6dsox = Lsm6dsox {
             i2c: PhantomData,
@@ -73,6 +82,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         Ok(lsm6dsox)
     }
 
+    /// Method to ensure if IMU is reponsive. Should respond with chip id.
     pub fn read_id(&self, i2c: &mut I2C) -> Result<u8, E> {
 
         let mut buffer = [0u8, 1];
@@ -82,9 +92,13 @@ impl<I2C, E> Lsm6dsox<I2C>
         }
     }
 
-    // Configures Accelerometer
+    /// # Configures accelerometer. 
+    /// Writes 8 bits to the register which configures the accelerometer. 
+    /// - The first 4 MSB sets output data rate selection to 416 Hz. 
+    /// - Bit 2 to 3 sets the acclerometer full-scale slection to 4g.
+    /// - Bit 1 will set acclerometer to output from first stage digital filtering.
     pub fn configure_accel(&self, i2c: &mut I2C) -> Result<(), E>{
-        // ODR_XL[7:4] = 0100; sets accelerometer to work at 104 Hz
+        // ODR_XL[7:4] = 0100; sets accelerometer to work at 416 Hz
         // FS[3:2] = 10; sets accelerometer full-scale selection to 4g
         // LPF2_XL_EN[1] = 1; output from first stage digital filtering
         // 0100 10 1 0
@@ -95,7 +109,11 @@ impl<I2C, E> Lsm6dsox<I2C>
         }
     }
 
-    // Configures Gyroscope
+    /// # Configures Gyroscope. 
+    /// Writes 8 bits to the register which configures the gyrscope. 
+    /// - The first 4 MSB sets output data rate selection to 416 Hz. 
+    /// - Bit 2 to 3 sets the gyrscope full-scale slection to 2000 dps.
+    /// - Bit 1 will set gyrscope to FS selected through bits FS[1:0]_G.
     pub fn configure_gyro(&self, i2c: &mut I2C) -> Result<(), E> {
         // ODR_G[3:0] = 0110; sets gyroscope to work at 416 Hz
         // FS[1:0] = 11; sets full-scale selcetion to 2000dps
@@ -107,7 +125,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         }
     }
 
-    // Read Accelerometer Data
+    /// Returns the accelerometer data 
     pub fn read_accel(&self, i2c: &mut I2C) -> Result<[f32; 3], E> {
 
         let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
@@ -142,7 +160,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         
     }
 
-    // Read Gyroscope Data
+    // Returns the gyroscope Data
     pub fn read_gyro(&self, i2c: &mut I2C) -> Result<[f32; 3], E> {
 
         let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
