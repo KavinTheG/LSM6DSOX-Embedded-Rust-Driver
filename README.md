@@ -19,7 +19,6 @@ Tested on the STM32F411E Discovery Board.
 - [ ] SPI Support
 - [ ] Documentation
 
-<br />
 
 ### Installation 
 
@@ -33,7 +32,6 @@ Ensure the line shown below is added to the Cargo.toml file
 lsm6dsox_driver = {git = "https://github.com/KavinTheG/LSM6DSOX-Embedded-Rust-Driver.git"} \
 ```
 
-<br />
 
 ### Usage
 
