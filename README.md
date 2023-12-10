@@ -2,7 +2,8 @@
 
 [![Rust](https://img.shields.io/badge/language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KavinTheG/LSM6DSOX-Embedded-Rust-Driver/blob/main/LICENSE-MIT)
-[![Docs](https://img.shields.io/badge/docs-passing-brightgreen.svg)](your-docs-url)
+[![Rust Documentation](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://your-documentation-url)
+
 
 
 This is a platform agnostic Rust to retrieve accelerometer + gyroscope data from the LSM6DSOX 6-axis IMU based on the [`embedded-hal`](https://github.com/japaric/embedded-hal) traits. 
