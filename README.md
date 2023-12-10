@@ -66,6 +66,9 @@ fn main() -> ! {
     // Instantiate Lsm6dsox imu object
     let imu = Lsm6dsox::new(&mut i2c).unwrap();
 
+    // Configures imu
+    imu.configure_accel(&mut i2c).unwrap();
+
     // variable to store data
     let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
 
