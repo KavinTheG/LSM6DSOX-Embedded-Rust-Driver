@@ -11,7 +11,7 @@ This is a platform agnostic Rust driver to retrieve accelerometer + gyroscope da
 Tested on the STM32F411E Discovery Board.
 
 
-## Status
+### Status
 - [x] I2C Support 
     - [x] Basic sensor readings
     - [ ] Calibration
@@ -84,6 +84,15 @@ fn main() -> ! {
 }
 
 ```
+
+### Documentation
+
+Currently, a hosting solution is not yet available. However, docuemntatioin can be generated with the following command.
+```
+cargo doc
+```
+The command will generate html files in the `target/doc` folder. 
+
 
 ### Datasheet
 
