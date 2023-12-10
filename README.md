@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KavinTheG/LSM6DSOX-Embedded-Rust-Driver/blob/main/LICENSE-MIT)
-[![Rust Documentation](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://your-documentation-url)
+[![Rust-doc](https://img.shields.io/badge/rust--doc-passing-brightgreen.svg)](https://your-documentation-url)
 
 
 
