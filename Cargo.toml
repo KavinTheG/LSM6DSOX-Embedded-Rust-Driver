@@ -9,16 +9,18 @@ version = "0.1.0"
 cortex-m = "0.7.0"
 cortex-m-rt = "0.7.3"
 cortex-m-semihosting = "0.3.3"
-embedded-hal = "0.2.7"
 generic-array = "1.0.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
 rtt-target = "0.4.0"
+embedded-hal = "1.0.0"
 
+
+#stm32f4xx-hal = "0.20.0"
 [dependencies.stm32f4xx-hal]
-version = "0.17.1"
-features = ["stm32f411", "rt"] # replace the model of your microcontroller here
-                         # and add other required features
+version = "0.20.0"
+features = ["stm32f411"]
+
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
