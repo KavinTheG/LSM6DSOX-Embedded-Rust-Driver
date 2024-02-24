@@ -140,9 +140,9 @@ fn main() -> ! {
 
         accel_data[2] = (word as f32) * 4.0/ 32768.0;
 
-        // rprint!("X: {}", accel_data[0]);
-        // rprint!(", Y: {}", accel_data[1]);
-        // rprintln!(", Z: {}", accel_data[2]);
+        rprint!("X: {}", accel_data[0]);
+        rprint!(", Y: {}", accel_data[1]);
+        rprintln!(", Z: {}", accel_data[2]);
 
         i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer);
         word = (buffer[0]  as i16) << 8;
