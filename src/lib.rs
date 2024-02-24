@@ -2,9 +2,10 @@
 #![no_std]
 
 extern crate embedded_hal as hal;
-use hal::i2c::{self, I2c};
 
 use core::marker::PhantomData;
+
+use hal::blocking::i2c;
 
 // Slave address 
 const SLAVE_ADDRESS: u8 = 0x6A; // LSB is 1 if SDO/SA0 is connect to usplly voltage, 0 otherwise
@@ -63,7 +64,7 @@ pub struct Lsm6dsox<I2C> {
 
 impl<I2C, E> Lsm6dsox<I2C> 
     where 
-        I2C: i2c::I2c<Error = E> + i2c::I2c<Error = E>,
+        I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
     pub fn new(_i2c: &I2C) -> Result<Self, E> {
         let lsm6dsox = Lsm6dsox {

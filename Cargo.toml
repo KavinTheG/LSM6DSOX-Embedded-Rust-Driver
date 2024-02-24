@@ -11,7 +11,7 @@ keywords = ["no-std", "LSM6DSOX", "6-axis", "IMU", "embedded", "embedded-hal-dri
 categories = ["embedded", "no-std"]
 
 [dependencies]
-embedded-hal = "1.0"
+embedded-hal = "0.2"
 
 [lib]
 name = "lsm6dsox_driver"
