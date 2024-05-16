@@ -110,38 +110,28 @@ impl<I2C, E> Lsm6dsox<I2C>
 
     // Read Accelerometer Data
     pub fn read_accel(&self, i2c: &mut I2C) -> Result<[f32; 3], E> {
+        let mut accel_data: [f32; 3] = [0.0, 0.0, 0.0];
+        let mut buffer: [u8; 6] = [0; 6];
+        
+        // Read all accelerometer data in one transaction if possible
+        if i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).is_err() {
+            return Err(/* return appropriate error */);
+        }
 
-        let mut accel_data:[f32; 3] = [0.0, 0.0, 0.0];
-        let mut buffer: [u8; 2] = [0; 2];
         let mut word: i16;
 
-        let _ = i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer);
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer);
-        word |= buffer[0] as i16;
+        word = ((buffer[0] as i16) << 8) | (buffer[1] as i16);
+        accel_data[0] = (word as f32) * 4.0 / 32768.0;
 
-        accel_data[0] = (word as f32) * 4.0/ 32768.0;
+        word = ((buffer[2] as i16) << 8) | (buffer[3] as i16);
+        accel_data[1] = (word as f32) * 4.0 / 32768.0;
 
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer);
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer);
-        word |= buffer[0] as i16;
-
-        accel_data[1] = (word as f32) * 4.0/ 32768.0;
-
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer);
-        word = (buffer[0]  as i16) << 8;
-    
-        i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer);
-        word |= buffer[0] as i16;
-
-        accel_data[2] = (word as f32) * 4.0/ 32768.0;
+        word = ((buffer[4] as i16) << 8) | (buffer[5] as i16);
+        accel_data[2] = (word as f32) * 4.0 / 32768.0;
 
         Ok(accel_data)
-        
     }
+
 
     // Read Gyroscope Data
     pub fn read_gyro(&self, i2c: &mut I2C) -> Result<[f32; 3], E> {
