@@ -115,7 +115,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         
         // Read all accelerometer data in one transaction if possible
         if i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer).is_err() {
-            return Err(/* return appropriate error */);
+            return Err(E::default());
         }
 
         let mut word: i16;
