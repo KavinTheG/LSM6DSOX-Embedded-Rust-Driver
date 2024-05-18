@@ -114,7 +114,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         let mut buffer: [u8; 6] = [0; 6];
         
         // Read all accelerometer data in one transaction if possible
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer)?;
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer)?;
 
         let mut word: i16;
 
@@ -137,7 +137,7 @@ impl<I2C, E> Lsm6dsox<I2C>
         let mut buffer: [u8; 6] = [0; 6];
         
         // Read all gyroscope data in one transaction
-        i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_G], &mut buffer)?;
+        i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_G], &mut buffer)?;
     
 
         let mut word: i16;
