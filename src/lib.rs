@@ -115,7 +115,7 @@ pub fn read_accel(&self, i2c: &mut I2C) -> Result<[f32; 3], E> {
     let mut word: i16;
 
     if let Err(e) = i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer) {
-        rprintln!("Error reading OUTX_H_A: {:?}", e);
+        //rprintln!("Error reading OUTX_H_A: {:?}", e);
         return Err(e);
     }
     word = (buffer[0] as i16) << 8;
