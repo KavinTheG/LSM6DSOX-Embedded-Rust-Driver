@@ -12,6 +12,7 @@ categories = ["embedded", "no-std"]
 
 [dependencies]
 embedded-hal = "0.2"
+generic-array = "1.0.0"
 
 [lib]
 name = "lsm6dsox_driver"
