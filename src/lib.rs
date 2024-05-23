@@ -4,7 +4,9 @@
 extern crate embedded_hal as hal;
 
 use hal::blocking::i2c::{Write, WriteRead};
-
+use core::mem::MaybeUninit;
+use generic_array::GenericArray;
+use generic_array::typenum::consts::U6;
 // Slave address 
 const SLAVE_ADDRESS: u8 = 0x6A; // LSB is 1 if SDO/SA0 is connect to usplly voltage, 0 otherwise
 
@@ -65,13 +67,16 @@ impl<I2C, E> Lsm6dsox<I2C>
     // Read Accelerometer Data
     pub fn read_accel(&mut self) -> Result<[f32; 3], E> {
         let mut accel_data: [f32; 3] = [0.0, 0.0, 0.0];
-        let mut buffer: [u8; 6] = [0; 6];  
+        //let mut buffer: [u8; 6] = [0; 6]; 
+        let mut buffer: GenericArray<u8, U6> = unsafe { MaybeUninit::uninit().assume_init() };
         //let mut word: i16;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[accel::Register::OUTX_L_A.addr()], &mut buffer)?;
-        accel_data[0] = ((buffer[1] as i16) << 8 | (buffer[0] as i16)) as f32 * 4.0 / 32768.0;
-        accel_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 4.0 / 32768.0;
-        accel_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 4.0 / 32768.0;
+        { 
+            let buffer: &mut [u8] = &mut buffer;
+            self.i2c.write_read(SLAVE_ADDRESS, &[accel::Register::OUTX_L_A.addr()], buffer)?;
+            accel_data[0] = ((buffer[1] as i16) << 8 | (buffer[0] as i16)) as f32 * 4.0 / 32768.0;
+            accel_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 4.0 / 32768.0;
+            accel_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 4.0 / 32768.0;
+        }
         /*
         self.i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer)?;
         word = (buffer[0] as i16) << 8;
