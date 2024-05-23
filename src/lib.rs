@@ -67,9 +67,8 @@ impl<I2C, E> Lsm6dsox<I2C>
     // Read Accelerometer Data
     pub fn read_accel(&mut self) -> Result<[f32; 3], E> {
         let mut accel_data: [f32; 3] = [0.0, 0.0, 0.0];
-        //let mut buffer: [u8; 6] = [0; 6]; 
         let mut buffer: GenericArray<u8, U6> = unsafe { MaybeUninit::uninit().assume_init() };
-        //let mut word: i16;
+        
         { 
             let buffer: &mut [u8] = &mut buffer;
             self.i2c.write_read(SLAVE_ADDRESS, &[accel::Register::OUTX_L_A.addr()], buffer)?;
@@ -77,31 +76,6 @@ impl<I2C, E> Lsm6dsox<I2C>
             accel_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 4.0 / 32768.0;
             accel_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 4.0 / 32768.0;
         }
-        /*
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTX_H_A], &mut buffer)?;
-        word = (buffer[0] as i16) << 8;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTX_L_A], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        accel_data[0] = (word as f32) * 4.0 / 32768.0;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTY_H_A], &mut buffer)?;
-        word = (buffer[0] as i16) << 8;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTY_L_A], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        accel_data[1] = (word as f32) * 4.0 / 32768.0;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTZ_H_A], &mut buffer)?;
-        word = (buffer[0] as i16) << 8;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[OUTZ_L_A], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        accel_data[2] = (word as f32) * 4.0 / 32768.0;
-        */
 
         Ok(accel_data)
     }
@@ -111,37 +85,15 @@ impl<I2C, E> Lsm6dsox<I2C>
     pub fn read_gyro(&mut self) -> Result<[f32; 3], E> {
 
         let mut gyro_data:[f32; 3] = [0.0, 0.0, 0.0];
-        let mut buffer: [u8; 2] = [0; 2];
-        let mut word: i16;
-        /*
-        X Gyro Calib: 1.7638855
-        Y Gyro Calib: 0.35549927
-        Z Gyro Calib: 2.0090027
-        */
+        let mut buffer: GenericArray<u8, U6> = unsafe { MaybeUninit::uninit().assume_init() };
 
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTX_H_G.addr()], &mut buffer)?;
-        word = (buffer[0]  as i16) << 8;
-    
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTX_L_G.addr()], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        gyro_data[0] = (word as f32) * 2000.0/ 32768.0;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTY_H_G.addr()], &mut buffer)?;
-        word = (buffer[0]  as i16) << 8;
-    
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTY_L_G.addr()], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        gyro_data[1] = (word as f32) * 2000.0/ 32768.0;
-
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTZ_H_G.addr()], &mut buffer)?;
-        word = (buffer[0]  as i16) << 8;
-    
-        self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTZ_L_G.addr()], &mut buffer)?;
-        word |= buffer[0] as i16;
-
-        gyro_data[2] = (word as f32) * 2000.0/ 32768.0;
+        {
+            let buffer: &mut [u8] = &mut buffer;
+            self.i2c.write_read(SLAVE_ADDRESS, &[gyro::Register::OUTX_L_G.addr()], buffer)?;
+            gyro_data[0] = ((buffer[1] as i16) << 8 | (buffer[0] as i16)) as f32 * 2000.0 / 32768.0;
+            gyro_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 2000.0 / 32768.0;
+            gyro_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 2000.0 / 32768.0;
+        }
 
         Ok(gyro_data)
     }
