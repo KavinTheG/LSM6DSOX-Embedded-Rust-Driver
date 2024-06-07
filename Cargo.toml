@@ -2,8 +2,8 @@
 authors = ["Kavin Gnanapandithan <kavin.balag@gmail.com>"]
 readme = "README.md"
 name = "lsm6dsox_driver"
-version = "0.1.0"
-edition = "2018"
+version = "0.2.0"
+edition = "2021"
 license = "MIT"
 repository = "https://github.com/KavinTheG/LSM6DSOX-Embedded-Rust-Driver/tree/main"
 description = "Driver for the LSM6DSOX 6-axis IMU."

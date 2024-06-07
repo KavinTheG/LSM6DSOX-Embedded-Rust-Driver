@@ -12,10 +12,10 @@ pub enum Register {
     // Angular rate roll axis (Y) output
     OUTY_L_G = 0x24,
     OUTY_H_G = 0x25,
+
     // Angular rate yaw axis (Z) output
     OUTZ_L_G = 0x26,
     OUTZ_H_G = 0x27,
-
 }
 
 impl Register {

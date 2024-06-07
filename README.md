@@ -14,7 +14,6 @@ Tested on the STM32F411E Discovery Board.
 ### Status
 - [x] I2C Support 
     - [x] Basic sensor readings
-    - [ ] Calibration
     - [ ] Configuration selection
 - [ ] SPI Support
 - [ ] Documentation
@@ -59,12 +58,12 @@ fn main() -> ! {
 
     let mut i2c = dp.I2C1.i2c(
         (scl, sda),
-        Mode::Standard { frequency: 200.kHz() },
+        Mode::Standard { frequency: 100.kHz() },
         &clocks,
     );
 
     // Instantiate Lsm6dsox imu object
-    let imu = Lsm6dsox::new(&mut i2c).unwrap();
+    let imu = Lsm6dsox::new(i2c).unwrap();
 
     // Configures imu
     imu.configure_accel(&mut i2c).unwrap();

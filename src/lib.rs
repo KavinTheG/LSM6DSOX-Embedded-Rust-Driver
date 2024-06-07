@@ -7,16 +7,12 @@ use hal::blocking::i2c::{Write, WriteRead};
 use core::mem::MaybeUninit;
 use generic_array::GenericArray;
 use generic_array::typenum::consts::U6;
+
 // Slave address 
 const SLAVE_ADDRESS: u8 = 0x6A; // LSB is 1 if SDO/SA0 is connect to usplly voltage, 0 otherwise
 
 // WHO AM I Register
 const WHO_AM_I: u8 = 0x0F;
-
-// 0th bit: Temp Data available (1 if available)
-// 1st bit: Gyro data availability
-// 2nd bit: Accel data available
-// const STATUS_REG: u8 = 0b0001_1110;
 
 mod accel;
 mod gyro;
@@ -66,9 +62,10 @@ impl<I2C, E> Lsm6dsox<I2C>
 
     // Read Accelerometer Data
     pub fn read_accel(&mut self) -> Result<[f32; 3], E> {
+        
         let mut accel_data: [f32; 3] = [0.0, 0.0, 0.0];
         let mut buffer: GenericArray<u8, U6> = unsafe { MaybeUninit::uninit().assume_init() };
-        
+
         { 
             let buffer: &mut [u8] = &mut buffer;
             self.i2c.write_read(SLAVE_ADDRESS, &[accel::Register::OUTX_L_A.addr()], buffer)?;
@@ -76,7 +73,6 @@ impl<I2C, E> Lsm6dsox<I2C>
             accel_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 4.0 / 32768.0;
             accel_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 4.0 / 32768.0;
         }
-
         Ok(accel_data)
     }
 
@@ -94,7 +90,6 @@ impl<I2C, E> Lsm6dsox<I2C>
             gyro_data[1] = ((buffer[3] as i16) << 8 | (buffer[2] as i16)) as f32 * 2000.0 / 32768.0;
             gyro_data[2] = ((buffer[5] as i16) << 8 | (buffer[4] as i16)) as f32 * 2000.0 / 32768.0;
         }
-
         Ok(gyro_data)
     }
 }
